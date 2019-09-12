@@ -19,7 +19,6 @@ class WebSecurityConfiguration(private val dataSource: DataSource,
                                private val userService: UserService) : WebSecurityConfigurerAdapter() {
 
     @Bean
-    @Throws(Exception::class)
     override fun authenticationManagerBean(): AuthenticationManager = super.authenticationManagerBean()
 
     override fun configure(auth: AuthenticationManagerBuilder) = configure(auth) {
