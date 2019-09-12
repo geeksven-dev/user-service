@@ -31,10 +31,17 @@ jobs:
         SOURCE: "*.tar.bz"
         TARGET: /home/geeksven
     - uses: appleboy/ssh-action@master
-      name: deploy to dokku
+      name: docker load image
       env:
         USERNAME: ${{ secrets.GEEKSVEN_USERNAME }}
         PASSWORD: ${{ secrets.GEEKSVEN_PASSWORD }}
         HOST: geeksven.com
         GITHUB_SHA: ${{github.sha}}
-        SCRIPT: bunzip2 ${{ github.sha }}.tar.bz && docker load --input=${{ github.sha }}.tar && dokku tags:create user-service previous; dokku tags:deploy user-service v${{ github.sha }}
+        SCRIPT: bunzip2 ${{ github.sha }}.tar.bz && docker load --input=${{ github.sha }}.tar
+    - uses: appleboy/ssh-action@master
+      name: dokku deploy
+      env:
+        USERNAME: ${{ secrets.GEEKSVEN_USERNAME }}
+        PASSWORD: ${{ secrets.GEEKSVEN_PASSWORD }}
+        HOST: geeksven.com
+        SCRIPT: dokku tags:create user-service previous; dokku tags:deploy user-service v${{ github.sha }}
