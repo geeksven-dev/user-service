@@ -1,0 +1,3 @@
+CREATE DATABASE gsbackend;
+GRANT ALL PRIVILEGES ON DATABASE gsbackend TO postgres;
+

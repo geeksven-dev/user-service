@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.geeksven.userservice.repository.UserRepository">
+
+  <resultMap id="user" type="UserEntity">
+    <id property="id" column="id"/>
+    <result property="email" column="email"/>
+    <result property="username" column="username"/>
+    <result property="password" column="password"/>
+    <result property="firstName" column="first_name"/>
+    <result property="lastName" column="last_name"/>
+    <collection property="roles" ofType="java.lang.String" javaType="java.util.List">
+      <result column="roles"/>
+    </collection>
+  </resultMap>
+
+  <select id="findByUsername" resultMap="user">
+    select u.id, u.email, u.username, u.password, u.first_name, u.last_name, r.name as roles
+    from users u
+           join user_roles ur on u.id = ur.user_id
+           join roles r on ur.role_id = r.id
+    where
+          u.email = #{username}
+  </select>
+
+</mapper>
