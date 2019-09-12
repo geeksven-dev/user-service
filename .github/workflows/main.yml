@@ -10,31 +10,20 @@ jobs:
       matrix:
         java: [ '11.0.x' ]
     steps:
-    - name: ls -a via OPEN SSH Private Key
-      uses: garygrossgarten/github-action-ssh@release
-      with:
-        command: echo ${{ github.sha }}
-        host: geeksven.com
-        username: geeksven
-        password: ${{ secrets.GEEKSVEN_PASSWORD }}
     - uses: actions/checkout@v1
     - name: Setup java
       uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java }}
         architecture: x64
-    - name: echo version
-      run: echo ${{ github.sha }} -- $(date +%s)
-    - name: Build the artifact
+    - name: build artifact
       run: ./gradlew build
-    - name: Build the Docker image
-      run: cd user-service && docker build . --file ./Dockerfile --tag dokku/user-service:v${{ github.sha }}
-    - name: zip artifact
+    - name: build docker image
+      run: docker build . --file ./Dockerfile --tag dokku/user-service:v${{ github.sha }}
+    - name: zip deployable
       run: docker save dokku/user-service:v${{ github.sha }} | bzip2 > ${{ github.sha }}.tar.bz
-    - name: show files
-      run: ls -lah
     - uses: appleboy/scp-action@master
-      name: SCP files to remote host
+      name: scp files to remote host
       env:
         USERNAME: ${{ secrets.GEEKSVEN_USERNAME }}
         PASSWORD: ${{ secrets.GEEKSVEN_PASSWORD }}
@@ -42,24 +31,10 @@ jobs:
         SOURCE: "*.tar.bz"
         TARGET: /home/geeksven
     - uses: appleboy/ssh-action@master
-      name: docker step 1
+      name: deploy to dokku
       env:
         USERNAME: ${{ secrets.GEEKSVEN_USERNAME }}
         PASSWORD: ${{ secrets.GEEKSVEN_PASSWORD }}
         HOST: geeksven.com
         GITHUB_SHA: ${{github.sha}}
-        SCRIPT: bunzip2 ${{ github.sha }}.tar.bz && docker load --input=${{ github.sha }}.tar
-    - uses: appleboy/ssh-action@master
-      name: docker step 2
-      env:
-        USERNAME: ${{ secrets.GEEKSVEN_USERNAME }}
-        PASSWORD: ${{ secrets.GEEKSVEN_PASSWORD }}
-        HOST: geeksven.com
-        SCRIPT: dokku tags:create user-service previous; dokku tags:deploy user-service v${{ github.sha }}
-    - uses: appleboy/ssh-action@master
-      name: docker step 3
-      env:
-        USERNAME: ${{ secrets.GEEKSVEN_USERNAME }}
-        PASSWORD: ${{ secrets.GEEKSVEN_PASSWORD }}
-        HOST: geeksven.com
-        SCRIPT: 'docker image list'
+        SCRIPT: bunzip2 ${{ github.sha }}.tar.bz && docker load --input=${{ github.sha }}.tar && dokku tags:create user-service previous; dokku tags:deploy user-service v${{ github.sha }}
