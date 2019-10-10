@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional
 class UserServiceImpl(private val userRepository: UserRepository) : UserService {
     override fun loadUserByUsername(username: String?): UserDetails = userRepository.findByUsername(username)?.let {
         User.withUsername(it.username)
-                .password(it.password)
-                .authorities(it.roles.map { role -> SimpleGrantedAuthority(role) })
-                .build()
+            .password(it.password)
+            .authorities(it.roles.map { role -> SimpleGrantedAuthority(role) })
+            .build()
     } ?: throw UsernameNotFoundException("Could not find account with username $username!")
 
     override fun findUserByUsername(username: String) = userRepository.findByUsername(username)

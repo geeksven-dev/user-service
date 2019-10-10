@@ -5,12 +5,14 @@ import com.geeksven.userservice.service.UserService
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client
+import org.springframework.web.cors.CorsConfiguration
 import javax.sql.DataSource
 
 @Configuration
@@ -32,8 +34,15 @@ class WebSecurityConfiguration(private val dataSource: DataSource,
     }
 
     override fun configure(http: HttpSecurity) = configure(http) {
+        csrf().disable()
+            .cors().configurationSource { CorsConfiguration().apply {
+                    allowedOrigins = listOf("*")
+                    allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    allowedHeaders = listOf("*")
+                }
+            }
         authorizeRequests()
-                    .requestMatchers(EndpointRequest.to("info")).permitAll()
+            .requestMatchers(EndpointRequest.to("info")).permitAll()
                 .antMatchers("/",
                         "/login**",
                         "/assets/**",
