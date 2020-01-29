@@ -7,7 +7,6 @@ plugins {
     kotlin("plugin.spring") version Versions.KOTLIN
     id("org.springframework.boot") version Versions.SPRING_BOOT
     id("io.spring.dependency-management") version Versions.SPRING_DEPENDENCY_MANAGEMENT
-    id("com.gorylenko.gradle-git-properties") version Versions.GIT_PROPERTIES
     id("org.asciidoctor.convert") version Versions.ASCII_DOCTOR
 }
 
