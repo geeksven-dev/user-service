@@ -1,5 +1,6 @@
 package com.geeksven.userservice.configuration
 
+import com.geeksven.userservice.service.UserService
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jose.jwk.KeyUse
@@ -28,7 +29,7 @@ class AuthorizationServerConfiguration {
     fun keyPair(): KeyPair = KeyStoreKeyFactory(ClassPathResource(KEY_STORE_FILE), KEY_STORE_PASSWORD.toCharArray()).getKeyPair(KEY_ALIAS)
 
     @Bean
-    fun jwtAccessTokenConverter() = JwtGeeksvenHeadersAccessTokenConverter(mapOf("kid" to JWK_KID), keyPair())
+    fun jwtAccessTokenConverter(userService: UserService) = JwtGeeksvenHeadersAccessTokenConverter(mapOf("kid" to JWK_KID), keyPair(), userService)
 
     @Bean
     fun tokenStore(jwtAccessTokenConverter: JwtAccessTokenConverter) = JwtTokenStore(jwtAccessTokenConverter)
